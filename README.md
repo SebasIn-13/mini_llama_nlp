@@ -1,5 +1,9 @@
 # MMIA-NLP CLass Project
 
+## Proyecto Sebastián Insuasti
+
+**En el notebook llama_execution.ipynb se realiza todas las tareas solicitadas en el proyecto.**
+
 ## Build a Mini-Llama, a minimalist version of Llama2.
 
 ## Overview

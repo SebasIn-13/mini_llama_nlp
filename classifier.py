@@ -57,12 +57,30 @@ class LlamaEmbeddingClassifier(torch.nn.Module):
 		# DONE
 		#hiddenstates
 		logits, hidden_states = self.llama(input_ids)
-		#final token
-		final_hidden_states = hidden_states[torch.arange(hidden_states.size(0)), input_ids.ne(0).sum(1) - 1]
+		# final token (Debido a que hay distintos tamaños y se aplica padding hay que encontrar el último token por batch)
+		
+		# Se obtiene el tamaño del bache
+		batch_size = hidden_states.size(0)
+
+		# 2. Se obtiene el largo de cada secuencia sin padding
+		non_pad_mask = input_ids.ne(0) 
+		sequence_lengths = non_pad_mask.sum(dim=1) 
+
+		# 3. Se obtiene el índice del último token para cada secuencia.
+		last_token_indices = sequence_lengths - 1  
+
+		# 4. Se crea los índices del batch 
+		batch_indices = torch.arange(batch_size)
+
+		# 5. Se obtienen los estados ocultos en las posiciones del batch y su índice válido
+		final_hidden_states = hidden_states[batch_indices, last_token_indices]
+		
 		#dropout
 		dropout_output = self.dropout(final_hidden_states)
+		
 		#classifier head
 		classifier_output = self.classifier_head(dropout_output)
+		
 		#log-softmax
 		log_probabilities = F.log_softmax(classifier_output, dim=-1)
 		return log_probabilities
